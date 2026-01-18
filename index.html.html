@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Transport Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f5ff;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 100, 0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #cc0000;
+            padding-bottom: 20px;
+        }
+        
+        h1 {
+            color: #cc0000;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .intro {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e6f7ff;
+            border-radius: 10px;
+            border-left: 5px solid #0066cc;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .current-location {
+            background-color: #ffe6e6;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.4rem;
+            border: 3px solid #cc0000;
+        }
+        
+        .actions-section, .organs-section {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: #0066cc;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .action-buttons, .organ-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .action-btn, .organ-btn, .finish-btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+        
+        .action-btn {
+            background-color: #e6f2ff;
+            color: #0066cc;
+            border: 2px solid #b3d9ff;
+        }
+        
+        .action-btn:hover {
+            background-color: #cce5ff;
+            transform: translateY(-2px);
+        }
+        
+        .organ-btn {
+            background-color: #ffebcc;
+            color: #cc6600;
+            border: 2px solid #ffcc80;
+        }
+        
+        .organ-btn:hover:not(:disabled) {
+            background-color = #ffd699;
+            transform: translateY(-2px);
+        }
+        
+        .organ-btn:disabled {
+            background-color: #f0f0f0;
+            color: #aaa;
+            cursor: not-allowed;
+            border: 2px solid #ddd;
+        }
+        
+        .history-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            background-color: white;
+            border-left: 4px solid #ddd;
+        }
+        
+        .feedback { 
+            color: #009900; 
+            border-left-color: #009900;
+        }
+        .warning { 
+            color: #ff0000; 
+            border-left-color: #ff0000;
+        }
+        .comment { 
+            color: #0066cc; 
+            border-left-color: #0066cc;
+        }
+        .statement { 
+            color: #cc9900; 
+            border-left-color: #cc9900;
+        }
+        
+        .finish-btn {
+            background-color: #009900;
+            color: white;
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            margin: 20px auto;
+            display: block;
+            border: none;
+        }
+        
+        .finish-btn:hover:not(:disabled) {
+            background-color: #007700;
+            transform: scale(1.05);
+        }
+        
+        .finish-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            display: none;
+            padding: 30px;
+            margin-top: 30px;
+            border-radius: 10px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        
+        .result-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .result-subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #ff0000;
+            font-weight: bold;
+        }
+        
+        .result-details {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #ff0000;
+        }
+        
+        .result-pathway {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #cc9900;
+            font-weight: bold;
+        }
+        
+        .problem-count {
+            font-size: 0.8rem;
+            margin: 10px 0;
+            color: #666;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        
+        .visit-count {
+            font-size: 0.8rem;
+            margin: 10px 0 20px 0;
+            color: #666;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+        }
+        
+        /* Flashing animations for results - UPDATED */
+        @keyframes flash-white-yellow {
+            0%, 100% { background-color: white; }
+            50% { background-color: #ffffcc; }
+        }
+        
+        @keyframes flash-white-red {
+            0%, 100% { background-color: white; }
+            50% { background-color: #ffcccc; }
+        }
+        
+        @keyframes flash-black-white {
+            0%, 100% { background-color: black; }
+            50% { background-color: white; }
+        }
+        
+        @keyframes flash-black-red {
+            0%, 100% { background-color: black; }
+            50% { background-color: #ffcccc; }
+        }
+        
+        .flash-white-yellow {
+            animation: flash-white-yellow 1s infinite;
+        }
+        
+        .flash-white-red {
+            animation: flash-white-red 0.8s infinite;
+        }
+        
+        .flash-black-white {
+            animation: flash-black-white 0.8s infinite;
+        }
+        
+        .flash-black-red {
+            animation: flash-black-red 0.6s infinite;
+        }
+        
+        .instructions {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ff9900;
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #cc6600;
+        }
+        
+        .status-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f8ff;
+            border-radius: 10px;
+            border: 2px solid #cce7ff;
+        }
+        
+        .status-box {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            background-color: white;
+            border: 1px solid #cce7ff;
+        }
+        
+        .status-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #0066cc;
+        }
+        
+        .status-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .counter-box {
+            background-color: #fff0f0;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .counter-value {
+            font-weight: bold;
+            color: #cc0000;
+        }
+        
+        .results-history {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        
+        .color-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .yellow-dot { background-color: #cc9900; }
+        .green-dot { background-color: #009900; }
+        .blue-dot { background-color: #0066cc; }
+        .red-dot { background-color: #ff0000; }
+        
+        /* Results status indicators */
+        .results-status-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f0f8ff;
+            border-radius: 10px;
+            border: 2px solid #cce7ff;
+        }
+        
+        .results-status-box {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            background-color: white;
+            border: 2px solid #cce7ff;
+        }
+        
+        .results-status-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            color: #0066cc;
+        }
+        
+        .results-status-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .results-pathway-accuracy {
+            color: #0066cc;
+        }
+        
+        .results-class-a {
+            color: #cc0000;
+        }
+        
+        .results-class-b {
+            color: #cc6600;
+        }
+        
+        .results-class-c {
+            color: #990099;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .action-buttons, .organ-buttons {
+                justify-content: center;
+            }
+            
+            .status-indicators {
+                flex-direction: column;
+            }
+            
+            .results-status-indicators {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Blood Transport Game</h1>
+            <div class="intro">
+                Welcome! You're BLOOD. Transport oxygen, carbon dioxide, and urea between organs to keep your human alive!
+            </div>
+        </header>
+        
+        <div class="current-location" id="currentLocation">
+            Current Location: LUNGS
+        </div>
+        
+        <div class="game-area">
+            <div class="actions-section">
+                <h2 class="section-title">Actions at Current Organ</h2>
+                <div class="instructions">
+                    <h3>Instructions:</h3>
+                    <p>At LUNGS: Uptake O₂ and release CO₂ before moving to the next organ. You may perform more than one action at each organ.</p>
+                </div>
+                <div class="action-buttons" id="actionButtons">
+                    <!-- Action buttons will be generated here -->
+                </div>
+            </div>
+            
+            <div class="organs-section">
+                <h2 class="section-title">Travel to Next Organ</h2>
+                <div class="instructions">
+                    <h3>Instructions:</h3>
+                    <p>Cannot travel to the current organ. Body organs can only be visited once. Visit all body organs before clicking the "Finish Journey" button at the bottom of the page.</p>
+                </div>
+                <div class="organ-buttons" id="organButtons">
+                    <!-- Organ buttons will be generated here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="history-section">
+            <h2 class="section-title">Journey History</h2>
+            <div class="color-legend">
+                <div class="color-item">
+                    <span class="color-dot yellow-dot"></span>
+                    <span style="color: #cc9900;">yellow: pathway made</span>
+                </div>
+                <div class="color-item">
+                    <span class="color-dot green-dot"></span>
+                    <span style="color: #009900;">green: correct action</span>
+                </div>
+                <div class="color-item">
+                    <span class="color-dot blue-dot"></span>
+                    <span style="color: #0066cc;">blue: reminder</span>
+                </div>
+                <div class="color-item">
+                    <span class="color-dot red-dot"></span>
+                    <span style="color: #ff0000;">red: warning</span>
+                </div>
+            </div>
+            <div id="historyLog">
+                <!-- History entries will be added here -->
+            </div>
+        </div>
+        
+        <div class="status-indicators">
+            <div class="status-box">
+                <div class="status-title">Body Organs Visited</div>
+                <div class="status-value" id="visitedCount">0/4</div>
+            </div>
+            <div class="status-box">
+                <div class="status-title">Pathway Correctness</div>
+                <div class="status-value" id="pathwayStatus">0/0</div>
+            </div>
+            <div class="status-box">
+                <div class="status-title">Oxygen Status</div>
+                <div class="status-value" id="oxygenStatus">Deoxygenated</div>
+                <div class="counter-box">
+                    O₂ releases left: <span class="counter-value" id="o2ReleasesLeft">0</span>
+                </div>
+            </div>
+            <div class="status-box">
+                <div class="status-title">CO₂ Status</div>
+                <div class="status-value" id="co2Status">Saturated</div>
+                <div class="counter-box">
+                    CO₂ uptakes left: <span class="counter-value" id="co2UptakesLeft">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <button class="finish-btn" id="finishBtn" disabled>Finish Journey</button>
+        
+        <div class="results" id="resultsPanel">
+            <h2 class="result-title" id="resultTitle">Results</h2>
+            <div class="result-subtitle" id="resultSubtitle"></div>
+            <div class="result-details" id="resultDetails"></div>
+            <div class="result-pathway" id="resultPathway"></div>
+            <div class="visit-count" id="visitCounts"></div>
+            
+            <!-- AMENDMENT 2: Added larger status indicators for results -->
+            <div class="results-status-indicators" id="resultsStatusIndicators">
+                <div class="results-status-box">
+                    <div class="results-status-title">Pathway Accuracy</div>
+                    <div class="results-status-value results-pathway-accuracy" id="resultPathwayAccuracy">0/0 (0%)</div>
+                </div>
+                <div class="results-status-box">
+                    <div class="results-status-title">Class A Problems (Oxygen)</div>
+                    <div class="results-status-value results-class-a" id="resultClassA">0</div>
+                </div>
+                <div class="results-status-box">
+                    <div class="results-status-title">Class B Problems (CO₂)</div>
+                    <div class="results-status-value results-class-b" id="resultClassB">0</div>
+                </div>
+                <div class="results-status-box">
+                    <div class="results-status-title">Class C Problems (Urea/CO₂)</div>
+                    <div class="results-status-value results-class-c" id="resultClassC">0</div>
+                </div>
+            </div>
+            
+            <div class="results-history" id="resultsHistory">
+                <h2 class="section-title">Complete Journey History</h2>
+                <div id="resultsHistoryLog"></div>
+            </div>
+            
+            <!-- Old problem-counts div removed as per Amendment 2 -->
+            
+            <button class="action-btn" id="restartBtn" style="margin-top: 30px;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            currentOrgan: 'lungs',
+            previousOrgan: null,
+            visitedOrgans: new Set(['lungs']),
+            bodyOrgans: ['small intestine', 'liver', 'kidney', 'brain'],
+            visitedBodyOrgans: new Set(),
+            allVisited: false,
+            
+            // Actions tracking
+            actions: {
+                lungs: { uptakeO2: false, releaseCO2: false },
+                heart: { uptakeCO2: false, releaseO2: false },
+                'small intestine': { uptakeCO2: false, releaseO2: false },
+                liver: { uptakeCO2: false, releaseO2: false, uptakeUREA: false },
+                kidney: { uptakeCO2: false, releaseO2: false, releaseUREA: false },
+                brain: { uptakeCO2: false, releaseO2: false }
+            },
+            
+            // Status flags
+            hasOxygen: false,
+            hasCO2: true, // Blood starts saturated with CO2
+            hasUrea: false,
+            ureaReleased: false,
+            
+            // Counters for O2 release and CO2 uptake
+            o2ReleaseCounter: 0,
+            co2UptakeCounter: 0,
+            o2ReleaseSinceLungs: 0,
+            co2UptakeSinceLungs: 0,
+            smallIntestineToLiverPath: false,
+            
+            // Pathway tracking
+            pathwayHistory: [],
+            correctPathways: 0,
+            totalPathways: 0,
+            
+            // Track the expected sequence
+            expectedSequence: ['lungs', 'heart', 'body', 'heart', 'lungs'],
+            currentSequenceIndex: 0, // Start at lungs (index 0)
+            
+            // History tracking
+            history: [],
+            statements: [],
+            warnings: [],
+            classAProblems: 0,
+            classBProblems: 0,
+            classCProblems: 0,
+            
+            // Current pathway
+            pathway: ['lungs'],
+            lastCorrectPathway: true
+        };
+        
+        // Initialize the game
+        function initGame() {
+            updateDisplay();
+            createActionButtons();
+            createOrganButtons();
+            logHistory('Welcome! Start at lungs. Perform uptake O₂ and release CO₂ before moving to the next organ.', 'statement');
+            updateCountersDisplay();
+        }
+        
+        // Create action buttons based on current organ
+        function createActionButtons() {
+            const actionButtonsDiv = document.getElementById('actionButtons');
+            actionButtonsDiv.innerHTML = '';
+            
+            const actions = [
+                { id: 'uptakeO2', label: 'Uptake O₂' },
+                { id: 'releaseO2', label: 'Release O₂' },
+                { id: 'uptakeCO2', label: 'Uptake CO₂' },
+                { id: 'releaseCO2', label: 'Release CO₂' },
+                { id: 'uptakeUREA', label: 'Uptake UREA' },
+                { id: 'releaseUREA', label: 'Release UREA' }
+            ];
+            
+            actions.forEach(action => {
+                const button = document.createElement('button');
+                button.className = 'action-btn';
+                button.id = action.id;
+                button.textContent = action.label;
+                button.addEventListener('click', () => performAction(action.id));
+                actionButtonsDiv.appendChild(button);
+            });
+        }
+        
+        // Create organ buttons (excluding current organ and respecting rules)
+        function createOrganButtons() {
+            const organButtonsDiv = document.getElementById('organButtons');
+            organButtonsDiv.innerHTML = '';
+            
+            // Always show heart and lungs (except if current organ)
+            const alwaysShow = ['heart', 'lungs'].filter(organ => organ !== gameState.currentOrgan);
+            
+            // Show body organs that haven't been visited yet
+            const availableBodyOrgans = gameState.bodyOrgans.filter(organ => {
+                // If kidney, only show if liver has been visited
+                if (organ === 'kidney' && !gameState.visitedBodyOrgans.has('liver')) {
+                    return false;
+                }
+                
+                // Don't show current organ or already visited body organs
+                return organ !== gameState.currentOrgan && !gameState.visitedBodyOrgans.has(organ);
+            });
+            
+            // Combine alwaysShow and availableBodyOrgans
+            const availableOrgans = [...alwaysShow, ...availableBodyOrgans];
+            
+            availableOrgans.forEach(organ => {
+                const button = document.createElement('button');
+                button.className = 'organ-btn';
+                button.textContent = organ.toUpperCase();
+                button.addEventListener('click', () => travelToOrgan(organ));
+                organButtonsDiv.appendChild(button);
+            });
+            
+            // Update visited count
+            document.getElementById('visitedCount').textContent = 
+                `${gameState.visitedBodyOrgans.size}/${gameState.bodyOrgans.length}`;
+            
+            // Check if all body organs have been visited
+            if (gameState.visitedBodyOrgans.size === gameState.bodyOrgans.length) {
+                gameState.allVisited = true;
+                document.getElementById('finishBtn').disabled = false;
+            }
+        }
+        
+        // Perform an action at the current organ
+        function performAction(action) {
+            const organ = gameState.currentOrgan;
+            let message = '';
+            let type = '';
+            
+            // Check for invalid actions first
+            if (organ !== 'lungs' && (action === 'releaseCO2' || action === 'uptakeO2')) {
+                message = 'Action invalid';
+                type = 'comment';
+                logHistory(`${action} at ${organ}: ${message}`, type);
+                return;
+            }
+            
+            if (organ === 'lungs' && (action === 'releaseO2' || action === 'uptakeCO2')) {
+                message = 'Action invalid';
+                type = 'comment';
+                logHistory(`${action} at ${organ}: ${message}`, type);
+                return;
+            }
+            
+            // Check specific conditions for actions
+            if (action === 'releaseUREA') {
+                if (organ !== 'kidney') {
+                    message = 'This organ cannot remove urea... Beware of urea accumulation';
+                    type = 'comment';
+                } else if (!gameState.hasUrea) {
+                    message = 'You haven\'t picked up any urea from the liver...';
+                    type = 'comment';
+                } else {
+                    // Valid UREA release at kidney
+                    gameState.actions[organ][action] = true;
+                    gameState.hasUrea = false;
+                    gameState.ureaReleased = true;
+                    message = 'successful urea release';
+                    type = 'feedback';
+                }
+            } 
+            else if (action === 'uptakeUREA') {
+                if (organ !== 'liver') {
+                    message = 'Action invalid';
+                    type = 'comment';
+                } else {
+                    gameState.actions[organ][action] = true;
+                    gameState.hasUrea = true;
+                    message = 'successful urea uptake';
+                    type = 'feedback';
+                }
+            }
+            else if (action === 'releaseO2') {
+                // Check if we have oxygen to release
+                if (!gameState.hasOxygen) {
+                    message = 'You haven\'t picked up oxygen from the lungs...';
+                    type = 'comment';
+                } 
+                // Check if organ is lungs (can't release O2 at lungs)
+                else if (organ === 'lungs') {
+                    message = 'Action invalid';
+                    type = 'comment';
+                }
+                // Check O2 release counter
+                else if (gameState.o2ReleaseCounter <= 0) {
+                    message = 'No more O₂ release slots available. Visit lungs to get more oxygen!';
+                    type = 'comment';
+                }
+                else {
+                    // Check for special case: small intestine -> liver pauses counter
+                    if (gameState.smallIntestineToLiverPath && organ === 'liver') {
+                        // Don't decrement counter for liver after small intestine
+                        gameState.o2ReleaseSinceLungs++;
+                        message = 'successful oxygen release (counter paused)';
+                    } else {
+                        gameState.o2ReleaseCounter--;
+                        gameState.o2ReleaseSinceLungs++;
+                        message = 'successful oxygen release';
+                    }
+                    
+                    gameState.actions[organ][action] = true;
+                    type = 'feedback';
+                }
+            }
+            else if (action === 'uptakeCO2') {
+                // Check if organ is lungs (can't uptake CO2 at lungs)
+                if (organ === 'lungs') {
+                    message = 'Action invalid';
+                    type = 'comment';
+                }
+                // Check CO2 uptake counter
+                else if (gameState.co2UptakeCounter <= 0) {
+                    message = 'No more CO₂ uptake slots available. Release CO₂ at lungs first!';
+                    type = 'comment';
+                }
+                else {
+                    // Check for special case: small intestine -> liver pauses counter
+                    if (gameState.smallIntestineToLiverPath && organ === 'liver') {
+                        // Don't decrement counter for liver after small intestine
+                        gameState.co2UptakeSinceLungs++;
+                        gameState.hasCO2 = true;
+                        message = 'successful carbon dioxide uptake (counter paused)';
+                    } else {
+                        gameState.co2UptakeCounter--;
+                        gameState.co2UptakeSinceLungs++;
+                        gameState.hasCO2 = true;
+                        message = 'successful carbon dioxide uptake';
+                    }
+                    
+                    gameState.actions[organ][action] = true;
+                    type = 'feedback';
+                }
+            }
+            else if (action === 'releaseCO2') {
+                if (organ === 'lungs') {
+                    if (!gameState.hasCO2) {
+                        message = 'You have not picked up any carbon dioxide from your body!';
+                        type = 'comment';
+                    } else {
+                        gameState.actions[organ][action] = true;
+                        gameState.hasCO2 = false;
+                        
+                        // Reset CO2 uptake counter to 3
+                        gameState.co2UptakeCounter = 3;
+                        gameState.co2UptakeSinceLungs = 0;
+                        
+                        message = 'successful carbon dioxide release';
+                        type = 'feedback';
+                    }
+                }
+            }
+            else if (action === 'uptakeO2') {
+                if (organ === 'lungs') {
+                    gameState.actions[organ][action] = true;
+                    gameState.hasOxygen = true;
+                    
+                    // Reset O2 release counter to 3
+                    gameState.o2ReleaseCounter = 3;
+                    gameState.o2ReleaseSinceLungs = 0;
+                    
+                    message = 'successful oxygen uptake';
+                    type = 'feedback';
+                }
+            }
+            
+            // Log the action
+            if (message) {
+                logHistory(`${action.replace(/([A-Z])/g, ' $1')} at ${organ}: ${message}`, type);
+                updateCountersDisplay();
+            }
+            
+            // Update status indicators
+            updateStatusIndicators();
+        }
+        
+        // Travel to a new organ
+        function travelToOrgan(organ) {
+            const previousOrgan = gameState.currentOrgan;
+            
+            // Check if pathway is correct
+            checkPathway(previousOrgan, organ);
+            
+            // Check for warnings from the previous organ
+            checkWarnings(previousOrgan);
+            
+            // Update game state
+            gameState.previousOrgan = previousOrgan;
+            gameState.currentOrgan = organ;
+            gameState.visitedOrgans.add(organ);
+            
+            // Check for special pathway: small intestine -> liver
+            gameState.smallIntestineToLiverPath = (previousOrgan === 'small intestine' && organ === 'liver');
+            
+            // If it's a body organ, add to visitedBodyOrgans
+            if (gameState.bodyOrgans.includes(organ)) {
+                gameState.visitedBodyOrgans.add(organ);
+            }
+            
+            // Add to pathway
+            gameState.pathway.push(organ);
+            
+            // Update display
+            updateDisplay();
+            createActionButtons();
+            createOrganButtons();
+            
+            // Log the travel
+            logHistory(`Traveled from ${previousOrgan} to ${organ}`, 'statement');
+        }
+        
+        // Check if pathway is correct and log statements if not
+        function checkPathway(fromOrgan, toOrgan) {
+            const pathway = [fromOrgan, toOrgan];
+            gameState.totalPathways++;
+            
+            // Determine expected organ based on current position in sequence
+            let expectedOrgan = '';
+            
+            // If we're at lungs, next should be heart
+            if (fromOrgan === 'lungs') {
+                expectedOrgan = 'heart';
+            }
+            // If we're at heart, next should be a body organ (or lungs if coming from a body organ)
+            else if (fromOrgan === 'heart') {
+                // Check what came before heart
+                const pathLength = gameState.pathway.length;
+                if (pathLength >= 2) {
+                    const organBeforeHeart = gameState.pathway[pathLength - 2];
+                    
+                    // If heart came from lungs, next should be a body organ
+                    if (organBeforeHeart === 'lungs') {
+                        expectedOrgan = 'body'; // Any body organ
+                    }
+                    // If heart came from a body organ, next should be lungs
+                    else if (gameState.bodyOrgans.includes(organBeforeHeart)) {
+                        expectedOrgan = 'lungs';
+                    }
+                } else {
+                    // First move from heart (should go to body organ)
+                    expectedOrgan = 'body';
+                }
+            }
+            // If we're at a body organ
+            else if (gameState.bodyOrgans.includes(fromOrgan)) {
+                // Check for special case: small intestine -> liver
+                if (fromOrgan === 'small intestine' && toOrgan === 'liver') {
+                    expectedOrgan = 'liver'; // This is allowed
+                } else {
+                    // After a body organ, should go to heart
+                    expectedOrgan = 'heart';
+                }
+            }
+            
+            // Check if pathway is correct
+            let isCorrect = false;
+            
+            // Special case: small intestine -> liver is always correct
+            if (fromOrgan === 'small intestine' && toOrgan === 'liver') {
+                isCorrect = true;
+            }
+            // Check if going to the expected organ
+            else if (expectedOrgan === 'body') {
+                // If expecting a body organ, check if toOrgan is a body organ
+                isCorrect = gameState.bodyOrgans.includes(toOrgan);
+            } else {
+                isCorrect = (toOrgan === expectedOrgan);
+            }
+            
+            if (isCorrect) {
+                gameState.lastCorrectPathway = true;
+                gameState.correctPathways++;
+            } else {
+                gameState.lastCorrectPathway = false;
+                
+                // Determine which statement to show
+                let statement = '';
+                
+                if (gameState.bodyOrgans.includes(fromOrgan) && gameState.bodyOrgans.includes(toOrgan)) {
+                    statement = 'You\'re travelling a long distance... Go back to the heart to give yourself an extra push and visit the lungs for more oxygen!';
+                    if (statement) {
+                        gameState.statements.push(statement);
+                        logHistory(`Pathway from ${fromOrgan} to ${toOrgan}: ${statement}`, 'statement');
+                    }
+                } 
+                // AMENDMENT 2: Updated this condition to give BOTH warning and statement
+                else if ((gameState.bodyOrgans.includes(fromOrgan) && toOrgan === 'lungs') || 
+                        (fromOrgan === 'lungs' && gameState.bodyOrgans.includes(toOrgan))) {
+                    // Warning
+                    const warning = 'You haven\'t been giving your heart enough oxygen and removing its carbon dioxide!';
+                    gameState.warnings.push(warning);
+                    gameState.classAProblems++; // Counts as class A
+                    gameState.classBProblems++; // Counts as class B
+                    logHistory(`Warning: ${warning}`, 'warning');
+                    
+                    // Statement
+                    const statement = 'You\'re travelling a long distance... Go back to the heart to give yourself an extra push';
+                    gameState.statements.push(statement);
+                    logHistory(`Pathway from ${fromOrgan} to ${toOrgan}: ${statement}`, 'statement');
+                } 
+                // AMENDMENT 2: Updated this condition to give BOTH warning and statement
+                else if (fromOrgan === 'lungs' && toOrgan === 'heart' && gameState.pathway[gameState.pathway.length-2] === 'heart') {
+                    // Warning
+                    const warning = 'You haven\'t been giving your body enough oxygen... HYPOXIA';
+                    gameState.warnings.push(warning);
+                    gameState.classAProblems++; // Counts as class A
+                    logHistory(`Warning: ${warning}`, 'warning');
+                    
+                    // Statement
+                    const statement = 'Your body cells are missing you... and their precious oxygen.';
+                    gameState.statements.push(statement);
+                    logHistory(`Pathway from ${fromOrgan} to ${toOrgan}: ${statement}`, 'statement');
+                } else if (gameState.bodyOrgans.includes(fromOrgan) && toOrgan === 'heart' && 
+                          gameState.pathway[gameState.pathway.length-2] === 'body') {
+                    statement = 'You haven\'t visited your lungs in a while... Are you sure you have enough oxygen to feed everyone?';
+                    if (statement) {
+                        gameState.statements.push(statement);
+                        logHistory(`Pathway from ${fromOrgan} to ${toOrgan}: ${statement}`, 'statement');
+                    }
+                }
+            }
+            
+            updatePathwayStatus();
+        }
+        
+        // Update pathway status display
+        function updatePathwayStatus() {
+            const pathwayStatusEl = document.getElementById('pathwayStatus');
+            pathwayStatusEl.textContent = `${gameState.correctPathways}/${gameState.totalPathways}`;
+            
+            if (gameState.totalPathways > 0) {
+                const accuracy = (gameState.correctPathways / gameState.totalPathways) * 100;
+                if (accuracy >= 80) {
+                    pathwayStatusEl.style.color = '#009900';
+                } else if (accuracy >= 60) {
+                    pathwayStatusEl.style.color = '#cc9900';
+                } else {
+                    pathwayStatusEl.style.color = '#ff0000';
+                }
+            }
+        }
+        
+        // Check for warnings from the organ being left
+        function checkWarnings(organ) {
+            const actions = gameState.actions[organ];
+            
+            // Check for oxygen warnings at lungs
+            if (organ === 'lungs' && !actions.uptakeO2) {
+                const warning = 'You\'re still DEOXYGENATED';
+                gameState.warnings.push(warning);
+                gameState.classAProblems++;
+                logHistory(`Warning from ${organ}: ${warning}`, 'warning');
+            }
+            
+            // Check for CO2 warnings at lungs
+            if (organ === 'lungs' && !actions.releaseCO2) {
+                const warning = 'You still have a lot of hydrogencarbonate ions and dissolved carbon dioxide... ACID accumulating';
+                gameState.warnings.push(warning);
+                gameState.classBProblems++;
+                gameState.classCProblems++;
+                logHistory(`Warning from ${organ}: ${warning}`, 'warning');
+            }
+            
+            // AMENDMENT 1: Warnings for heart already exist in the code
+            // Check for oxygen release warnings at heart
+            if (organ === 'heart' && !actions.releaseO2) {
+                const warning = 'You haven\'t been giving your body enough oxygen... HYPOXIA';
+                gameState.warnings.push(warning);
+                gameState.classAProblems++;
+                logHistory(`Warning from ${organ}: ${warning}`, 'warning');
+            }
+            
+            // Check for CO2 uptake warnings at heart
+            if (organ === 'heart' && !actions.uptakeCO2) {
+                const warning = 'You haven\'t been removing CO2 from your body... ACID accumulating';
+                gameState.warnings.push(warning);
+                gameState.classBProblems++;
+                gameState.classCProblems++;
+                logHistory(`Warning from ${organ}: ${warning}`, 'warning');
+            }
+            
+            // Check for oxygen release warnings at body organs
+            if (gameState.bodyOrgans.includes(organ) && !actions.releaseO2) {
+                const warning = 'You haven\'t been giving your body enough oxygen... HYPOXIA';
+                gameState.warnings.push(warning);
+                gameState.classAProblems++;
+                logHistory(`Warning from ${organ}: ${warning}`, 'warning');
+            }
+            
+            // Check for CO2 uptake warnings at body organs
+            if (gameState.bodyOrgans.includes(organ) && !actions.uptakeCO2) {
+                const warning = 'You haven\'t been removing CO2 from your body... ACID accumulating';
+                gameState.warnings.push(warning);
+                gameState.classBProblems++;
+                gameState.classCProblems++;
+                logHistory(`Warning from ${organ}: ${warning}`, 'warning');
+            }
+            
+            // Check for urea warnings
+            if (organ === 'liver' && !actions.uptakeUREA) {
+                const warning = 'UREA accumulating...';
+                gameState.warnings.push(warning);
+                gameState.classCProblems++;
+                logHistory(`Warning from ${organ}: ${warning}`, 'warning');
+            }
+            
+            if (organ === 'kidney' && !actions.releaseUREA && gameState.hasUrea) {
+                const warning = 'UREA accumulating...';
+                gameState.warnings.push(warning);
+                gameState.classCProblems++;
+                logHistory(`Warning from ${organ}: ${warning}`, 'warning');
+            }
+        }
+        
+        // Update the main display
+        function updateDisplay() {
+            document.getElementById('currentLocation').textContent = 
+                `Current Location: ${gameState.currentOrgan.toUpperCase()}`;
+            
+            updateStatusIndicators();
+        }
+        
+        // Update status indicators
+        function updateStatusIndicators() {
+            // Update oxygen status
+            document.getElementById('oxygenStatus').textContent = 
+                gameState.hasOxygen ? 'Oxygenated' : 'Deoxygenated';
+            
+            // Update CO2 status
+            document.getElementById('co2Status').textContent = 
+                gameState.hasCO2 ? 'Saturated' : 'Low CO2';
+            
+            updatePathwayStatus();
+        }
+        
+        // Update counters display
+        function updateCountersDisplay() {
+            document.getElementById('o2ReleasesLeft').textContent = gameState.o2ReleaseCounter;
+            document.getElementById('co2UptakesLeft').textContent = gameState.co2UptakeCounter;
+        }
+        
+        // Log history with appropriate color coding (newest at the top)
+        function logHistory(message, type) {
+            const historyLog = document.getElementById('historyLog');
+            const historyItem = document.createElement('div');
+            historyItem.className = `history-item ${type}`;
+            
+            // Add timestamp
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            
+            // Create message with timestamp
+            const messageText = document.createElement('span');
+            messageText.textContent = message;
+            
+            const timestamp = document.createElement('span');
+            timestamp.textContent = ` [${timeString}]`;
+            timestamp.style.color = '#666';
+            timestamp.style.fontSize = '0.9rem';
+            timestamp.style.marginLeft = '10px';
+            
+            historyItem.appendChild(messageText);
+            historyItem.appendChild(timestamp);
+            
+            // Insert at the top (prepend) instead of appending
+            if (historyLog.firstChild) {
+                historyLog.insertBefore(historyItem, historyLog.firstChild);
+            } else {
+                historyLog.appendChild(historyItem);
+            }
+            
+            // Store in game state
+            gameState.history.unshift({message, type, timestamp: timeString});
+        }
+        
+        // Finish the journey and show results
+        function finishJourney() {
+            // Hide game elements
+            document.querySelector('.game-area').style.display = 'none';
+            document.querySelector('.history-section').style.display = 'none';
+            document.querySelector('.status-indicators').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'none';
+            
+            // Calculate results
+            calculateResults();
+            
+            // Display full history in results
+            displayResultsHistory();
+            
+            // Show results panel
+            const resultsPanel = document.getElementById('resultsPanel');
+            resultsPanel.style.display = 'block';
+            
+            // Scroll to results
+            resultsPanel.scrollIntoView({behavior: 'smooth'});
+        }
+        
+        // Display history in results panel
+        function displayResultsHistory() {
+            const resultsHistoryLog = document.getElementById('resultsHistoryLog');
+            resultsHistoryLog.innerHTML = '';
+            
+            // Display all history items in chronological order (oldest first)
+            const chronologicalHistory = [...gameState.history].reverse();
+            
+            chronologicalHistory.forEach(entry => {
+                const historyItem = document.createElement('div');
+                historyItem.className = `history-item ${entry.type}`;
+                
+                const messageText = document.createElement('span');
+                messageText.textContent = entry.message;
+                
+                const timestamp = document.createElement('span');
+                timestamp.textContent = ` [${entry.timestamp}]`;
+                timestamp.style.color = '#666';
+                timestamp.style.fontSize = '0.9rem';
+                timestamp.style.marginLeft = '10px';
+                
+                historyItem.appendChild(messageText);
+                historyItem.appendChild(timestamp);
+                resultsHistoryLog.appendChild(historyItem);
+            });
+        }
+        
+        // Calculate and display results
+        function calculateResults() {
+            const resultTitle = document.getElementById('resultTitle');
+            const resultSubtitle = document.getElementById('resultSubtitle');
+            const resultDetails = document.getElementById('resultDetails');
+            const resultPathway = document.getElementById('resultPathway');
+            const visitCounts = document.getElementById('visitCounts');
+            
+            // AMENDMENT 2: Get references to new result status elements
+            const resultPathwayAccuracy = document.getElementById('resultPathwayAccuracy');
+            const resultClassA = document.getElementById('resultClassA');
+            const resultClassB = document.getElementById('resultClassB');
+            const resultClassC = document.getElementById('resultClassC');
+            
+            // Count problems
+            const classA = gameState.classAProblems;
+            const classB = gameState.classBProblems;
+            const classC = gameState.classCProblems;
+            
+            // Calculate urea problems (classC includes both classB and urea problems)
+            const ureaProblems = classC - classB;
+            
+            // Calculate organ visit counts
+            const heartVisits = gameState.pathway.filter(organ => organ === 'heart').length;
+            const lungVisits = gameState.pathway.filter(organ => organ === 'lungs').length;
+            const bodyOrganVisits = gameState.pathway.filter(organ => 
+                gameState.bodyOrgans.includes(organ)).length;
+            
+            // Display visit counts
+            visitCounts.innerHTML = `
+                <div>Organ Visits Summary:</div>
+                <div>Heart: ${heartVisits} times</div>
+                <div>Lungs: ${lungVisits} times</div>
+                <div>Body Organs: ${bodyOrganVisits} times (max 4 possible)</div>
+            `;
+            
+            // AMENDMENT 2: Update the new larger status indicators
+            const accuracyPercentage = gameState.totalPathways > 0 ? 
+                Math.round((gameState.correctPathways/gameState.totalPathways)*100) : 0;
+            
+            resultPathwayAccuracy.textContent = `${gameState.correctPathways}/${gameState.totalPathways} (${accuracyPercentage}%)`;
+            resultClassA.textContent = classA;
+            resultClassB.textContent = classB;
+            resultClassC.textContent = classC;
+            
+            // Check for statements (incorrect pathways)
+            let forgotDoubleCirculation = gameState.statements.length > 0;
+            
+            // AMENDMENT 3: Updated thresholds for hypoxia
+            let hypoxiaLevel = '';
+            if (classA >= 6) hypoxiaLevel = 'Severe hypoxia';
+            else if (classA >= 3) hypoxiaLevel = 'Moderate hypoxia';
+            else if (classA >= 1) hypoxiaLevel = 'Mild hypoxia';
+            
+            // AMENDMENT 3: Updated thresholds for acidosis
+            let acidosisLevel = '';
+            if (classC >= 6) acidosisLevel = 'Severe acidosis';
+            else if (classC >= 3) acidosisLevel = 'Moderate acidosis';
+            else if (classC >= 1) acidosisLevel = 'Mild acidosis';
+            
+            // Determine cause based on new rules
+            let cause = '';
+            if (classB > 0 && ureaProblems === 0) {
+                cause = 'due to carbon dioxide accumulation';
+            } else if (classB > 0 && ureaProblems > 0) {
+                cause = 'due to carbon dioxide and urea accumulation';
+            } else if (classB === 0 && ureaProblems > 0) {
+                cause = 'due to urea accumulation';
+            }
+            
+            // Determine overall result for flashing effects
+            let severity1 = hypoxiaLevel.split(' ')[0]; // Mild, Moderate, Severe
+            let severity2 = acidosisLevel.split(' ')[0]; // Mild, Moderate, Severe
+            
+            // Convert to numeric for comparison
+            const severityValue = {
+                'Mild': 1,
+                'Moderate': 2,
+                'Severe': 3,
+                '': 0
+            };
+            
+            const maxSeverity = Math.max(severityValue[severity1], severityValue[severity2]);
+            
+            // Count occurrences of each severity
+            const severityCounts = {
+                'Mild': (severity1 === 'Mild' ? 1 : 0) + (severity2 === 'Mild' ? 1 : 0),
+                'Moderate': (severity1 === 'Moderate' ? 1 : 0) + (severity2 === 'Moderate' ? 1 : 0),
+                'Severe': (severity1 === 'Severe' ? 1 : 0) + (severity2 === 'Severe' ? 1 : 0)
+            };
+            
+            // Set page effects based on results
+            const body = document.body;
+            const container = document.querySelector('.container');
+            
+            // Reset any existing flashing classes
+            body.classList.remove('flash-white-yellow', 'flash-white-red', 'flash-black-white', 'flash-black-red');
+            container.classList.remove('flash-white-yellow', 'flash-white-red', 'flash-black-white', 'flash-black-red');
+            
+            // Clear pathway message
+            resultPathway.textContent = '';
+            
+            // Set the main title based on severity
+            if (severityCounts['Severe'] >= 2) {
+                // 2 Severe
+                body.classList.add('flash-black-red');
+                container.classList.add('flash-black-red');
+                resultTitle.textContent = 'MULTIPLE ORGAN FAILURES';
+                resultTitle.style.fontSize = '3rem';
+                resultTitle.style.color = 'black';
+            } else if (severityCounts['Severe'] >= 1 || 
+                      severityCounts['Moderate'] >= 2 || 
+                      (severityCounts['Moderate'] >= 1 && severityCounts['Mild'] >= 1)) {
+                // 1 Severe, OR 2 Moderate, OR 1 Moderate + 1 Mild
+                body.classList.add('flash-black-white');
+                container.classList.add('flash-black-white');
+                resultTitle.textContent = 'SEVERAL ORGAN FAILURES';
+                resultTitle.style.fontSize = '3rem';
+                resultTitle.style.color = 'white';
+            } else if (severityCounts['Moderate'] >= 1 || 
+                      severityCounts['Mild'] >= 2 || 
+                      (severityCounts['Moderate'] >= 1 && severityCounts['Mild'] >= 1)) {
+                // 1 Moderate, OR 2 Mild, OR 1 Moderate + 1 Mild
+                body.classList.add('flash-white-red');
+                container.classList.add('flash-white-red');
+                resultTitle.textContent = 'RISK OF ORGAN FAILURES';
+                resultTitle.style.fontSize = '3rem';
+                resultTitle.style.color = 'black';
+            } else if (severityCounts['Mild'] >= 1) {
+                // 1 Mild
+                body.classList.add('flash-white-yellow');
+                container.classList.add('flash-white-yellow');
+                resultTitle.textContent = 'Mild Issues Detected';
+                resultTitle.style.color = 'black';
+            } else {
+                // Good result
+                resultTitle.textContent = 'Journey Completed Successfully!';
+                resultTitle.style.color = '#009900';
+            }
+            
+            // Set subtitle and details (in red color)
+            let subtitleText = '';
+            if (hypoxiaLevel && acidosisLevel) {
+                subtitleText = `${hypoxiaLevel} & ${acidosisLevel}`;
+            } else if (hypoxiaLevel) {
+                subtitleText = hypoxiaLevel;
+            } else if (acidosisLevel) {
+                subtitleText = acidosisLevel;
+            }
+            
+            resultSubtitle.textContent = subtitleText;
+            resultSubtitle.style.color = '#ff0000';
+            
+            if (cause) {
+                resultDetails.textContent = cause;
+                resultDetails.style.color = '#ff0000';
+            }
+            
+            // Set pathway message (if any) - BELOW the hypoxia/acidosis results
+            if (forgotDoubleCirculation) {
+                resultPathway.textContent = 'You forgot to travel in double circulation!';
+                resultPathway.style.color = '#cc9900';
+                resultPathway.style.fontSize = '2rem';
+            }
+            
+            // If forgot double circulation but no other issues
+            if (forgotDoubleCirculation && maxSeverity === 0) {
+                resultSubtitle.textContent = 'Pathway issues detected';
+                resultSubtitle.style.color = '#ff0000';
+                resultDetails.textContent = 'Remember to follow the correct circulatory pathway: lungs → heart → body organ → heart → lungs...';
+                resultDetails.style.color = '#ff0000';
+            }
+        }
+        
+        // Restart the game
+        function restartGame() {
+            // AMENDMENT 1: Added proper reset of body and container
+            const body = document.body;
+            const container = document.querySelector('.container');
+            
+            // Reset body and container classes
+            body.className = '';
+            container.className = 'container';
+            
+            // Reset game state
+            gameState.currentOrgan = 'lungs';
+            gameState.previousOrgan = null;
+            gameState.visitedOrgans = new Set(['lungs']);
+            gameState.visitedBodyOrgans = new Set();
+            gameState.allVisited = false;
+            
+            // Reset actions
+            for (let organ in gameState.actions) {
+                for (let action in gameState.actions[organ]) {
+                    gameState.actions[organ][action] = false;
+                }
+            }
+            
+            // Reset status flags
+            gameState.hasOxygen = false;
+            gameState.hasCO2 = true; // Blood starts saturated with CO2
+            gameState.hasUrea = false;
+            gameState.ureaReleased = false;
+            
+            // Reset counters
+            gameState.o2ReleaseCounter = 0;
+            gameState.co2UptakeCounter = 0;
+            gameState.o2ReleaseSinceLungs = 0;
+            gameState.co2UptakeSinceLungs = 0;
+            gameState.smallIntestineToLiverPath = false;
+            
+            // Reset pathway tracking
+            gameState.pathwayHistory = [];
+            gameState.correctPathways = 0;
+            gameState.totalPathways = 0;
+            gameState.currentSequenceIndex = 0;
+            
+            // Reset tracking
+            gameState.history = [];
+            gameState.statements = [];
+            gameState.warnings = [];
+            gameState.classAProblems = 0;
+            gameState.classBProblems = 0;
+            gameState.classCProblems = 0;
+            gameState.pathway = ['lungs'];
+            gameState.lastCorrectPathway = true;
+            
+            // Reset UI
+            document.querySelector('.game-area').style.display = '';
+            document.querySelector('.history-section').style.display = '';
+            document.querySelector('.status-indicators').style.display = '';
+            document.getElementById('finishBtn').style.display = '';
+            document.getElementById('resultsPanel').style.display = 'none';
+            document.getElementById('historyLog').innerHTML = '';
+            document.getElementById('finishBtn').disabled = true;
+            
+            // Reinitialize game
+            initGame();
+        }
+        
+        // Initialize event listeners
+        document.getElementById('finishBtn').addEventListener('click', finishJourney);
+        document.getElementById('restartBtn').addEventListener('click', restartGame);
+        
+        // Initialize the game when page loads
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
